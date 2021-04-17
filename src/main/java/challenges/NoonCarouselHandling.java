@@ -25,55 +25,57 @@ public class NoonCarouselHandling {
 		driver = new ChromeDriver();
 		driver.manage().window().maximize();
 		driver.get("https://www.noon.com/uae-en/");
-		String[] headers = { "Recommended For You", "Save big on mobiles & tablets", "Top picks in laptops",
-				"Bestselling fragrances", "Sports shoes under 199 AED" };
+		String[] carousels = { "Recommended For You", "Limited time offers", "Save big on mobiles & tablets",
+				"Top picks in laptops", "Bestselling fragrances", "Sports shoes under 199 AED" };
 
-		for (String header : headers) {
-			sectionName(header);
+		for (String sectionName : carousels) {
+			System.out.println("------------" + sectionName + "------------");
+			printProductList(sectionName).forEach(System.out::println);
 		}
 		driver.quit();
 	}
 
-	public static void sectionName(String containerName) {
-		String xPath = "//div[div[h3[contains(.,'" + containerName
+	public static Set<String> printProductList(String sectionName) {
+		String productsXpath = "//div[div[h3[contains(.,'" + sectionName
 				+ "')]]]/following-sibling::div/div/div/div/div/a/div/div[2]/div[@data-qa='product-name']/div";
-		String nextBtn = "//div[div[h3[contains(.,'" + containerName
+		String nextBtnXpath = "//div[div[h3[contains(.,'" + sectionName
 				+ "')]]]/following-sibling::div/div[contains(@class,'swiper-button-next')]";
 
 		Set<String> products = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 		JavascriptExecutor js = (JavascriptExecutor) driver;
+		boolean carouselVisible = false;
 		int scrollCnt = 0;
 		int maxScroll = 25;
 
-		while (true) {			
-			if (verifyElementVisible(By.xpath(xPath))) {
+		while (true) {
+			if (verifyElementVisible(By.xpath(productsXpath))) {
+				carouselVisible = true;
 				break;
 			}
 			js.executeScript("window.scrollBy(0, 1000)");
 			scrollCnt++;
 			if (scrollCnt == maxScroll) {
-				System.out.println("Maximum allowed scroll reached for finding carousel- "+containerName);
+				System.out.println("Maximum allowed scrolling reached for finding carousel- " + sectionName);
 				break;
 			}
 		}
-		
-		if (verifyElementVisible(By.xpath(xPath))) {
+
+		if (carouselVisible) {
 			do {
-				List<WebElement> prodList = driver.findElements(By.xpath(xPath));
+				List<WebElement> prodList = driver.findElements(By.xpath(productsXpath));
 				for (WebElement elm : prodList) {
 					products.add(elm.getText().trim());
 				}
-				driver.findElement(By.xpath(nextBtn)).click();
-			} while (!driver.findElement(By.xpath(nextBtn)).getAttribute("class").contains("swiper-button-disabled"));
+				if (!driver.findElement(By.xpath(nextBtnXpath)).getAttribute("class")
+						.contains("swiper-button-disabled"))
+					driver.findElement(By.xpath(nextBtnXpath)).click();
+			} while (!driver.findElement(By.xpath(nextBtnXpath)).getAttribute("class")
+					.contains("swiper-button-disabled"));
 		}
-		
-		if(products.size()>0) {
-			System.out.println("------------"+containerName+"------------");
-			products.forEach(System.out::println);
-		}
-		
-		
+
 		js.executeScript("window.scrollTo(0,0);");
+
+		return products;
 
 	}
 
