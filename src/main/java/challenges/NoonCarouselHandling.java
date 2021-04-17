@@ -26,7 +26,7 @@ public class NoonCarouselHandling {
 		driver.manage().window().maximize();
 		driver.get("https://www.noon.com/uae-en/");
 		String[] headers = { "Recommended For You", "Save big on mobiles & tablets", "Top picks in laptops",
-				"Bestselling fragrances", "invalid container" };
+				"Bestselling fragrances", "Sports shoes under 199 AED" };
 
 		for (String header : headers) {
 			sectionName(header);
@@ -45,14 +45,12 @@ public class NoonCarouselHandling {
 		int scrollCnt = 0;
 		int maxScroll = 25;
 
-		while (true) {
-			js.executeScript("window.scrollBy(0, 1000)");
-			scrollCnt++;
-			pauseExecution(1);
+		while (true) {			
 			if (verifyElementVisible(By.xpath(xPath))) {
-				js.executeScript("arguments[0].scrollIntoView(false);", driver.findElement(By.xpath(xPath)));
 				break;
 			}
+			js.executeScript("window.scrollBy(0, 1000)");
+			scrollCnt++;
 			if (scrollCnt == maxScroll) {
 				System.out.println("Maximum allowed scroll reached for finding carousel- "+containerName);
 				break;
@@ -68,8 +66,13 @@ public class NoonCarouselHandling {
 				driver.findElement(By.xpath(nextBtn)).click();
 			} while (!driver.findElement(By.xpath(nextBtn)).getAttribute("class").contains("swiper-button-disabled"));
 		}
-
-		products.forEach(System.out::println);
+		
+		if(products.size()>0) {
+			System.out.println("------------"+containerName+"------------");
+			products.forEach(System.out::println);
+		}
+		
+		
 		js.executeScript("window.scrollTo(0,0);");
 
 	}
