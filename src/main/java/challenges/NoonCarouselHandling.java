@@ -38,6 +38,7 @@ public class NoonCarouselHandling {
 	public static Set<String> printProductList(String sectionName) {
 		String productsXpath = "//div[div[h3[contains(.,'" + sectionName
 				+ "')]]]/following-sibling::div/div/div/div/div/a/div/div[2]/div[@data-qa='product-name']/div";
+		
 		String nextBtnXpath = "//div[div[h3[contains(.,'" + sectionName
 				+ "')]]]/following-sibling::div/div[contains(@class,'swiper-button-next')]";
 
@@ -45,10 +46,10 @@ public class NoonCarouselHandling {
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		boolean carouselVisible = false;
 		int scrollCnt = 0;
-		int maxScroll = 25;
+		int maxScroll = 35;
 
 		while (true) {
-			if (verifyElementVisible(By.xpath(productsXpath))) {
+			if (verifyElementVisible(By.xpath(productsXpath), 1)) {
 				carouselVisible = true;
 				break;
 			}
@@ -79,9 +80,9 @@ public class NoonCarouselHandling {
 
 	}
 
-	public static boolean verifyElementVisible(final By locator) {
+	public static boolean verifyElementVisible(By locator, long seconds) {
 		try {
-			new WebDriverWait(driver, 1).ignoring(NoSuchElementException.class).pollingEvery(Duration.ofMillis(5))
+			new WebDriverWait(driver, seconds).ignoring(NoSuchElementException.class).pollingEvery(Duration.ofMillis(5))
 					.until(ExpectedConditions.presenceOfElementLocated(locator));
 			return true;
 		} catch (Exception e) {
